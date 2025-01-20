@@ -545,71 +545,136 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-        document.addEventListener('DOMContentLoaded', function () {
-            function initializeAddButton(addBtn, slot) {
-                addBtn.addEventListener('click', function () {
-                    const optionsDiv = document.createElement('div');
-                    optionsDiv.classList.add('add-options');
-                    optionsDiv.innerHTML = `
-                        <button>Math</button>
-                        <button>English</button>
-                        <button>Chemistry</button>
-                        <button>Physics</button>
-                        <button>Biology</button>
-                        <button>History</button>
-                    `;
-                    slot.appendChild(optionsDiv);
-                    optionsDiv.style.display = 'block';
+document.addEventListener('DOMContentLoaded', function () {
+    const subjectColors = {
+        Math: 'blue',
+        Chemistry: 'orange',
+        English: 'green',
+        Physics: 'purple',
+        Biology: 'teal',
+        History: 'brown',
+    };
 
-                    const subjectColors = {
-                        Math: 'blue',
-                        Chemistry: 'orange',
-                        English: 'green',
-                        Physics: 'purple',
-                        Biology: 'teal',
-                        History: 'brown',
-                    };
+    const tableId = "timetable"; // A unique identifier for this table's data in localStorage
 
-                    optionsDiv.querySelectorAll('button').forEach(option => {
-                        option.addEventListener('click', function (e) {
-                            const subject = e.target.textContent;
-                            slot.innerHTML = subject;
-                            slot.classList.remove('empty-slot');
-                            slot.style.backgroundColor = subjectColors[subject] || 'white';
-                            slot.style.color = 'white';
-
-                            const removeBtn = document.createElement('button');
-                            removeBtn.classList.add('remove-btn');
-                            removeBtn.textContent = '-';
-                            const removeDiv = document.createElement('div');
-                            removeDiv.classList.add('edit-buttons');
-                            removeDiv.appendChild(removeBtn);
-                            slot.appendChild(removeDiv);
-
-                            removeBtn.addEventListener('click', function () {
-                                slot.innerHTML = '<div class="edit-buttons"><button class="add-btn">+</button></div>';
-                                slot.classList.add('empty-slot');
-                                slot.style.backgroundColor = '';
-                                slot.style.color = '';
-                                initializeAddButton(slot.querySelector('.add-btn'), slot);
-                            });
-                        });
-                    });
-
-                    document.addEventListener('click', function hideOptions(e) {
-                        if (!optionsDiv.contains(e.target) && e.target !== addBtn) {
-                            optionsDiv.remove();
-                            document.removeEventListener('click', hideOptions);
-                        }
-                    });
-                });
+    // Function to save the timetable state to localStorage
+    function saveTimetableState() {
+        const timetableData = [];
+        document.querySelectorAll('#timetable-table td').forEach(cell => {
+            if (!cell.classList.contains('time-slot')) {
+                const subject = cell.textContent.trim();
+                const bgColor = cell.style.backgroundColor || '';
+                timetableData.push({ subject, bgColor });
             }
+        });
+        localStorage.setItem(tableId, JSON.stringify(timetableData));
+    }
 
-            document.querySelectorAll('.add-btn').forEach(addBtn => {
-                const slot = addBtn.closest('td');
-                initializeAddButton(addBtn, slot);
+    // Function to load the timetable state from localStorage
+    function loadTimetableState() {
+        const savedData = localStorage.getItem(tableId);
+        if (savedData) {
+            const timetableData = JSON.parse(savedData);
+            document.querySelectorAll('#timetable-table td').forEach((cell, index) => {
+                if (!cell.classList.contains('time-slot') && timetableData[index]) {
+                    const { subject, bgColor } = timetableData[index];
+                    if (subject) {
+                        cell.textContent = subject;
+                        cell.style.backgroundColor = bgColor;
+                        cell.style.color = 'white';
+                        cell.classList.remove('empty-slot');
+
+                        // Add remove button
+                        const removeBtn = document.createElement('button');
+                        removeBtn.classList.add('remove-btn');
+                        removeBtn.textContent = '-';
+                        const removeDiv = document.createElement('div');
+                        removeDiv.classList.add('edit-buttons');
+                        removeDiv.appendChild(removeBtn);
+                        cell.appendChild(removeDiv);
+
+                        // Attach remove button functionality
+                        removeBtn.addEventListener('click', function () {
+                            cell.innerHTML = '<div class="edit-buttons"><button class="add-btn">+</button></div>';
+                            cell.classList.add('empty-slot');
+                            cell.style.backgroundColor = '';
+                            cell.style.color = '';
+                            initializeAddButton(cell.querySelector('.add-btn'), cell);
+                            saveTimetableState();
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    // Initialize add button functionality
+    function initializeAddButton(addBtn, slot) {
+        addBtn.addEventListener('click', function () {
+            const optionsDiv = document.createElement('div');
+            optionsDiv.classList.add('add-options');
+            optionsDiv.innerHTML = `
+                <button>Math</button>
+                <button>English</button>
+                <button>Chemistry</button>
+                <button>Physics</button>
+                <button>Biology</button>
+                <button>History</button>
+            `;
+            slot.appendChild(optionsDiv);
+            optionsDiv.style.display = 'block';
+
+            optionsDiv.querySelectorAll('button').forEach(option => {
+                option.addEventListener('click', function (e) {
+                    const subject = e.target.textContent;
+                    slot.textContent = subject;
+                    slot.style.backgroundColor = subjectColors[subject] || 'white';
+                    slot.style.color = 'white';
+                    slot.classList.remove('empty-slot');
+
+                    // Add remove button
+                    const removeBtn = document.createElement('button');
+                    removeBtn.classList.add('remove-btn');
+                    removeBtn.textContent = '-';
+                    const removeDiv = document.createElement('div');
+                    removeDiv.classList.add('edit-buttons');
+                    removeDiv.appendChild(removeBtn);
+                    slot.appendChild(removeDiv);
+
+                    // Attach remove button functionality
+                    removeBtn.addEventListener('click', function () {
+                        slot.innerHTML = '<div class="edit-buttons"><button class="add-btn">+</button></div>';
+                        slot.classList.add('empty-slot');
+                        slot.style.backgroundColor = '';
+                        slot.style.color = '';
+                        initializeAddButton(slot.querySelector('.add-btn'), slot);
+                        saveTimetableState();
+                    });
+
+                    saveTimetableState();
+                });
+            });
+
+            // Close options when clicking outside
+            document.addEventListener('click', function hideOptions(e) {
+                if (!optionsDiv.contains(e.target) && e.target !== addBtn) {
+                    optionsDiv.remove();
+                    document.removeEventListener('click', hideOptions);
+                }
             });
         });
+    }
+
+    // Initialize all add buttons on page load
+    document.querySelectorAll('.add-btn').forEach(addBtn => {
+        const slot = addBtn.closest('td');
+        initializeAddButton(addBtn, slot);
+    });
+
+    // Load saved timetable state
+    loadTimetableState();
+});
+
     </script>
 </body>
 </html>
