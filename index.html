@@ -502,27 +502,10 @@
         </table>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-    // Get the role from the URL
+document.addEventListener('DOMContentLoaded', function () {
     const urlParams = new URLSearchParams(window.location.search);
     const userRole = urlParams.get('role'); // e.g., "admin" or "user"
 
-    if (userRole === 'admin') {
-        document.querySelectorAll('.add-btn').forEach(button => {
-            button.style.display = 'inline-block'; // Show "+" buttons for admins
-        });
-
-        document.querySelectorAll('.remove-btn').forEach(button => {
-            button.style.display = 'inline-block'; // Show "-" buttons for admins
-        });
-    } else {
-        // Hide "+" and "-" buttons for non-admins (default behavior)
-        document.querySelectorAll('.add-btn, .remove-btn').forEach(button => {
-            button.style.display = 'none';
-        });
-    }
-});
-document.addEventListener('DOMContentLoaded', function () {
     const subjectColors = {
         Math: 'blue',
         Chemistry: 'orange',
@@ -569,23 +552,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add remove button to a cell
     function addRemoveButton(cell) {
-        const removeBtn = document.createElement('button');
-        removeBtn.classList.add('remove-btn');
-        removeBtn.textContent = '-';
-        const removeDiv = document.createElement('div');
-        removeDiv.classList.add('edit-buttons');
-        removeDiv.appendChild(removeBtn);
-        cell.appendChild(removeDiv);
+        if (userRole === 'admin') {
+            const removeBtn = document.createElement('button');
+            removeBtn.classList.add('remove-btn');
+            removeBtn.textContent = '-';
+            const removeDiv = document.createElement('div');
+            removeDiv.classList.add('edit-buttons');
+            removeDiv.appendChild(removeBtn);
+            cell.appendChild(removeDiv);
 
-        // Attach remove button functionality
-        removeBtn.addEventListener('click', function () {
-            cell.innerHTML = '<div class="edit-buttons"><button class="add-btn">+</button></div>';
-            cell.classList.add('empty-slot');
-            cell.style.backgroundColor = '';
-            cell.style.color = '';
-            initializeAddButton(cell.querySelector('.add-btn'), cell);
-            saveTimetableState();
-        });
+            // Attach remove button functionality
+            removeBtn.addEventListener('click', function () {
+                cell.innerHTML = '<div class="edit-buttons"><button class="add-btn">+</button></div>';
+                cell.classList.add('empty-slot');
+                cell.style.backgroundColor = '';
+                cell.style.color = '';
+                initializeAddButton(cell.querySelector('.add-btn'), cell);
+                saveTimetableState();
+            });
+        }
     }
 
     // Initialize add button functionality
@@ -627,10 +612,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Initialize all add buttons on page load
-    document.querySelectorAll('.add-btn').forEach(addBtn => {
-        const slot = addBtn.closest('td');
-        initializeAddButton(addBtn, slot);
-    });
+    if (userRole === 'admin') {
+        document.querySelectorAll('.add-btn').forEach(addBtn => {
+            const slot = addBtn.closest('td');
+            initializeAddButton(addBtn, slot);
+        });
+    }
 
     // Load saved timetable state on page load
     loadTimetableState();
