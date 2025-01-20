@@ -502,9 +502,7 @@
         </table>
     </div>
     <script>
-
-
-document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
     // Get the role from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const userRole = urlParams.get('role'); // e.g., "admin" or "user"
@@ -524,7 +522,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
 document.addEventListener('DOMContentLoaded', function () {
     const subjectColors = {
         Math: 'blue',
@@ -540,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Save timetable state to localStorage
     function saveTimetableState() {
         const timetableData = [];
-        document.querySelectorAll('#timetable-table tr').forEach((row, rowIndex) => {
+        document.querySelectorAll('#timetable-table tbody tr').forEach((row, rowIndex) => {
             row.querySelectorAll('td').forEach((cell, colIndex) => {
                 if (!cell.classList.contains('time-slot') && !cell.classList.contains('empty-slot')) {
                     const subject = cell.textContent.trim();
@@ -558,7 +555,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (savedData) {
             const timetableData = JSON.parse(savedData);
             timetableData.forEach(({ rowIndex, colIndex, subject, bgColor }) => {
-                const cell = document.querySelector(`#timetable-table tr:nth-child(${rowIndex + 1}) td:nth-child(${colIndex + 1})`);
+                const cell = document.querySelector(`#timetable-table tbody tr:nth-child(${rowIndex + 1}) td:nth-child(${colIndex + 1})`);
                 if (cell) {
                     cell.textContent = subject;
                     cell.style.backgroundColor = bgColor;
