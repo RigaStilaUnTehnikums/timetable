@@ -555,54 +555,55 @@ document.addEventListener('DOMContentLoaded', function () {
         History: 'brown',
     };
 
-    const tableId = "timetable"; // A unique identifier for this table's data in localStorage
+    const tableId = "timetable"; // Unique identifier for localStorage
 
-    // Function to save the timetable state to localStorage
+    // Function to save timetable state to localStorage
     function saveTimetableState() {
         const timetableData = [];
-        document.querySelectorAll('#timetable-table td').forEach(cell => {
-            if (!cell.classList.contains('time-slot')) {
-                const subject = cell.textContent.trim();
-                const bgColor = cell.style.backgroundColor || '';
-                timetableData.push({ subject, bgColor });
-            }
+        document.querySelectorAll('#timetable-table tr').forEach((row, rowIndex) => {
+            row.querySelectorAll('td').forEach((cell, colIndex) => {
+                // Skip time slots or empty cells
+                if (!cell.classList.contains('time-slot') && !cell.classList.contains('empty-slot')) {
+                    const subject = cell.textContent.trim();
+                    const bgColor = cell.style.backgroundColor || '';
+                    timetableData.push({ rowIndex, colIndex, subject, bgColor });
+                }
+            });
         });
         localStorage.setItem(tableId, JSON.stringify(timetableData));
     }
 
-    // Function to load the timetable state from localStorage
+    // Function to load timetable state from localStorage
     function loadTimetableState() {
         const savedData = localStorage.getItem(tableId);
         if (savedData) {
             const timetableData = JSON.parse(savedData);
-            document.querySelectorAll('#timetable-table td').forEach((cell, index) => {
-                if (!cell.classList.contains('time-slot') && timetableData[index]) {
-                    const { subject, bgColor } = timetableData[index];
-                    if (subject) {
-                        cell.textContent = subject;
-                        cell.style.backgroundColor = bgColor;
-                        cell.style.color = 'white';
-                        cell.classList.remove('empty-slot');
+            timetableData.forEach(({ rowIndex, colIndex, subject, bgColor }) => {
+                const cell = document.querySelector(`#timetable-table tr:nth-child(${rowIndex + 1}) td:nth-child(${colIndex + 1})`);
+                if (cell) {
+                    cell.textContent = subject;
+                    cell.style.backgroundColor = bgColor;
+                    cell.style.color = 'white';
+                    cell.classList.remove('empty-slot');
 
-                        // Add remove button
-                        const removeBtn = document.createElement('button');
-                        removeBtn.classList.add('remove-btn');
-                        removeBtn.textContent = '-';
-                        const removeDiv = document.createElement('div');
-                        removeDiv.classList.add('edit-buttons');
-                        removeDiv.appendChild(removeBtn);
-                        cell.appendChild(removeDiv);
+                    // Add remove button
+                    const removeBtn = document.createElement('button');
+                    removeBtn.classList.add('remove-btn');
+                    removeBtn.textContent = '-';
+                    const removeDiv = document.createElement('div');
+                    removeDiv.classList.add('edit-buttons');
+                    removeDiv.appendChild(removeBtn);
+                    cell.appendChild(removeDiv);
 
-                        // Attach remove button functionality
-                        removeBtn.addEventListener('click', function () {
-                            cell.innerHTML = '<div class="edit-buttons"><button class="add-btn">+</button></div>';
-                            cell.classList.add('empty-slot');
-                            cell.style.backgroundColor = '';
-                            cell.style.color = '';
-                            initializeAddButton(cell.querySelector('.add-btn'), cell);
-                            saveTimetableState();
-                        });
-                    }
+                    // Attach remove button functionality
+                    removeBtn.addEventListener('click', function () {
+                        cell.innerHTML = '<div class="edit-buttons"><button class="add-btn">+</button></div>';
+                        cell.classList.add('empty-slot');
+                        cell.style.backgroundColor = '';
+                        cell.style.color = '';
+                        initializeAddButton(cell.querySelector('.add-btn'), cell);
+                        saveTimetableState();
+                    });
                 }
             });
         }
@@ -671,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
         initializeAddButton(addBtn, slot);
     });
 
-    // Load saved timetable state
+    // Load saved timetable state on page load
     loadTimetableState();
 });
 
