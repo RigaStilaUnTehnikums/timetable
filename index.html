@@ -562,7 +562,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const timetableData = [];
         document.querySelectorAll('#timetable-table tr').forEach((row, rowIndex) => {
             row.querySelectorAll('td').forEach((cell, colIndex) => {
-                // Skip time slots or empty cells
                 if (!cell.classList.contains('time-slot') && !cell.classList.contains('empty-slot')) {
                     const subject = cell.textContent.trim();
                     const bgColor = cell.style.backgroundColor || '';
@@ -570,17 +569,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         });
-        // Debug: Check saved data
-        console.log("Saving timetable:", timetableData);
+        console.log("Saving data to localStorage:", timetableData); // Debug
         localStorage.setItem(tableId, JSON.stringify(timetableData));
     }
 
     // Load timetable state from localStorage
     function loadTimetableState() {
+        console.log("Loading data from localStorage..."); // Debug
         const savedData = localStorage.getItem(tableId);
         if (savedData) {
+            console.log("Loaded data:", JSON.parse(savedData)); // Debug loaded data
             const timetableData = JSON.parse(savedData);
-            console.log("Loading timetable:", timetableData); // Debug: Check loaded data
             timetableData.forEach(({ rowIndex, colIndex, subject, bgColor }) => {
                 const cell = document.querySelector(`#timetable-table tr:nth-child(${rowIndex + 1}) td:nth-child(${colIndex + 1})`);
                 if (cell) {
@@ -588,25 +587,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     cell.style.backgroundColor = bgColor;
                     cell.style.color = 'white';
                     cell.classList.remove('empty-slot');
-
-                    // Add remove button
-                    const removeBtn = document.createElement('button');
-                    removeBtn.classList.add('remove-btn');
-                    removeBtn.textContent = '-';
-                    const removeDiv = document.createElement('div');
-                    removeDiv.classList.add('edit-buttons');
-                    removeDiv.appendChild(removeBtn);
-                    cell.appendChild(removeDiv);
-
-                    // Attach remove button functionality
-                    removeBtn.addEventListener('click', function () {
-                        cell.innerHTML = '<div class="edit-buttons"><button class="add-btn">+</button></div>';
-                        cell.classList.add('empty-slot');
-                        cell.style.backgroundColor = '';
-                        cell.style.color = '';
-                        initializeAddButton(cell.querySelector('.add-btn'), cell);
-                        saveTimetableState();
-                    });
                 }
             });
         }
@@ -636,26 +616,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     slot.style.color = 'white';
                     slot.classList.remove('empty-slot');
 
-                    // Add remove button
-                    const removeBtn = document.createElement('button');
-                    removeBtn.classList.add('remove-btn');
-                    removeBtn.textContent = '-';
-                    const removeDiv = document.createElement('div');
-                    removeDiv.classList.add('edit-buttons');
-                    removeDiv.appendChild(removeBtn);
-                    slot.appendChild(removeDiv);
-
-                    // Attach remove button functionality
-                    removeBtn.addEventListener('click', function () {
-                        slot.innerHTML = '<div class="edit-buttons"><button class="add-btn">+</button></div>';
-                        slot.classList.add('empty-slot');
-                        slot.style.backgroundColor = '';
-                        slot.style.color = '';
-                        initializeAddButton(slot.querySelector('.add-btn'), slot);
-                        saveTimetableState();
-                    });
-
-                    saveTimetableState();
+                    saveTimetableState(); // Save after adding a subject
                 });
             });
 
