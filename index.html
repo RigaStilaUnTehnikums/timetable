@@ -557,7 +557,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const tableId = "timetable"; // Unique identifier for localStorage
 
-    // Function to save timetable state to localStorage
+    // Save timetable state to localStorage
     function saveTimetableState() {
         const timetableData = [];
         document.querySelectorAll('#timetable-table tr').forEach((row, rowIndex) => {
@@ -570,14 +570,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         });
+        // Debug: Check saved data
+        console.log("Saving timetable:", timetableData);
         localStorage.setItem(tableId, JSON.stringify(timetableData));
     }
 
-    // Function to load timetable state from localStorage
+    // Load timetable state from localStorage
     function loadTimetableState() {
         const savedData = localStorage.getItem(tableId);
         if (savedData) {
             const timetableData = JSON.parse(savedData);
+            console.log("Loading timetable:", timetableData); // Debug: Check loaded data
             timetableData.forEach(({ rowIndex, colIndex, subject, bgColor }) => {
                 const cell = document.querySelector(`#timetable-table tr:nth-child(${rowIndex + 1}) td:nth-child(${colIndex + 1})`);
                 if (cell) {
