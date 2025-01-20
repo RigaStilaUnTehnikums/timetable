@@ -522,6 +522,29 @@
         </table>
     </div>
     <script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Get the role from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const userRole = urlParams.get('role'); // e.g., "admin" or "user"
+
+    if (userRole === 'admin') {
+        document.querySelectorAll('.add-btn').forEach(button => {
+            button.style.display = 'inline-block'; // Show "+" buttons for admins
+        });
+
+        document.querySelectorAll('.remove-btn').forEach(button => {
+            button.style.display = 'inline-block'; // Show "-" buttons for admins
+        });
+    } else {
+        // Hide "+" and "-" buttons for non-admins (default behavior)
+        document.querySelectorAll('.add-btn, .remove-btn').forEach(button => {
+            button.style.display = 'none';
+        });
+    }
+});
+
+
         document.addEventListener('DOMContentLoaded', function () {
             function initializeAddButton(addBtn, slot) {
                 addBtn.addEventListener('click', function () {
@@ -571,6 +594,13 @@
                                 initializeAddButton(slot.querySelector('.add-btn'), slot);
                             });
                         });
+                    });
+
+                    document.addEventListener('click', function hideOptions(e) {
+                        if (!optionsDiv.contains(e.target) && e.target !== addBtn) {
+                            optionsDiv.remove();
+                            document.removeEventListener('click', hideOptions);
+                        }
                     });
                 });
             }
